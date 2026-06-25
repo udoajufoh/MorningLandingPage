@@ -54,10 +54,23 @@
     }
 
     .date {
+      display: inline-block;
       font-size: 1.9rem;
       font-weight: 700;
       letter-spacing: -0.5px;
-      color: var(--text);
+      color: #1a1200;
+      background: linear-gradient(135deg, #f5c842 0%, #fde87a 40%, #c9960a 70%, #f5c842 100%);
+      background-size: 200% 200%;
+      animation: goldShimmer 4s ease infinite;
+      padding: 6px 28px;
+      border-radius: 8px;
+      box-shadow: 0 2px 18px rgba(245, 200, 66, 0.35);
+    }
+
+    @keyframes goldShimmer {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     /* ============================================================
@@ -197,6 +210,14 @@
       border-radius: 12px;
       padding: 20px 34px;
       text-align: center;
+      position: relative;
+      animation: quoteGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes quoteGlow {
+      0%   { box-shadow: 0 0 10px rgba(0,176,155,0.4), 0 0 20px rgba(0,176,155,0.2); }
+      50%  { box-shadow: 0 0 22px rgba(0,176,155,0.8), 0 0 45px rgba(0,176,155,0.4), 0 0 70px rgba(0,176,155,0.15); }
+      100% { box-shadow: 0 0 10px rgba(0,176,155,0.4), 0 0 20px rgba(0,176,155,0.2); }
     }
 
     .quote-text {
