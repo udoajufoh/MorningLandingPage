@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Morning Dashboard</title>
+  <style>
+    /* ============================================================
+       COLORS — edit these to retheme the whole page
+    ============================================================ */
+    :root {
+      --bg:           #091628;
+      --card:         rgba(255, 255, 255, 0.05);
+      --card-border:  rgba(255, 255, 255, 0.08);
+      --accent:       #00b09b;
+      --accent-dark:  #009485;
+      --text:         #ffffff;
+      --text-muted:   #6e93af;
+      --done-color:   #3a5570;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      /* Dark navy base with a very subtle diagonal grain for depth */
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(135deg, rgba(0,176,155,0.03) 25%, transparent 25%),
+        linear-gradient(225deg, rgba(0,176,155,0.03) 25%, transparent 25%),
+        linear-gradient(315deg, rgba(0,176,155,0.03) 25%, transparent 25%),
+        linear-gradient(45deg,  rgba(0,176,155,0.03) 25%, transparent 25%);
+      background-size: 40px 40px;
+      color: var(--text);
+      padding: 28px 20px 12px;
+    }
+
+    /* ============================================================
+       HEADER
+    ============================================================ */
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .greeting {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 5px;
+    }
+
+    .date {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+
+    /* ============================================================
+       MAIN GRID
+    ============================================================ */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      max-width: 860px;
+      margin: 0 auto 14px;
+    }
+
+    /* ============================================================
+       CARDS
+    ============================================================ */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+
+    .card-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 13px;
+    }
+
+    /* ============================================================
+       PRIORITIES
+    ============================================================ */
+    .priorities-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 13px;
+    }
+
+    .start-fresh {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 0;
+      transition: color 0.2s;
+    }
+    .start-fresh:hover { color: var(--accent); }
+
+    .priority-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .priority-item:last-child { margin-bottom: 0; }
+
+    .priority-check {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.18);
+      border-radius: 50%;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 2px;
+      transition: background 0.2s, border-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .priority-check.done {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .priority-check.done::after {
+      content: '';
+      width: 5px;
+      height: 8px;
+      border: 2px solid white;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg) translateY(-1px);
+      display: block;
+    }
+
+    .priority-text {
+      flex: 1;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      color: var(--text);
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      padding: 0;
+      cursor: text;
+      resize: none;
+      overflow: hidden;
+      outline: none;
+      transition: color 0.2s;
+      width: 100%;
+    }
+    .priority-text.done {
+      text-decoration: line-through;
+      color: var(--done-color);
+    }
+    .priority-text::placeholder { color: rgba(255,255,255,0.2); font-style: italic; }
+
+    /* ============================================================
+       NOTES
+    ============================================================ */
+    .notes-textarea {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: var(--text);
+      resize: none;
+      outline: none;
+      min-height: 108px;
+    }
+    .notes-textarea::placeholder { color: rgba(255,255,255,0.2); font-style: italic; }
+
+    /* ============================================================
+       QUOTE BANNER
+    ============================================================ */
+    .quote-section {
+      max-width: 860px;
+      margin: 0 auto 14px;
+      background: var(--accent);
+      border-radius: 12px;
+      padding: 20px 34px;
+      text-align: center;
+    }
+
+    .quote-text {
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: white;
+      line-height: 1.55;
+      margin-bottom: 7px;
+      letter-spacing: 0.01em;
+    }
+
+    .quote-attribution {
+      font-size: 0.72rem;
+      color: rgba(255, 255, 255, 0.72);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ============================================================
+       LAUNCH BUTTONS
+    ============================================================ */
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 11px;
+      max-width: 860px;
+      margin: 0 auto 14px;
+    }
+
+    .launch-btn {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 13px 10px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.25s, border-color 0.25s, transform 0.2s;
+      text-decoration: none;
+      display: block;
+    }
+    .launch-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    .btn-icon {
+      font-size: 1.25rem;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      text-align: center;
+      padding-bottom: 6px;
+    }
+    /* Chelsea link — subtle, does not compete with the main layout */
+    footer a {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    footer a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="greeting" id="greeting"></div>
+    <div class="date"     id="date"></div>
+  </header>
+
+  <div class="main-grid">
+
+    <div class="card">
+      <div class="priorities-header">
+        <div class="card-title">Top 3 Priorities</div>
+        <button class="start-fresh" id="startFresh">Start fresh</button>
+      </div>
+      <div id="priorityList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Remember Today</div>
+      <textarea
+        class="notes-textarea"
+        id="notes"
+        placeholder="Anything to keep front of mind today..."
+        rows="5"
+      ></textarea>
+    </div>
+
+  </div>
+
+  <div class="quote-section">
+    <div class="quote-text"        id="quoteText"></div>
+    <div class="quote-attribution" id="quoteAttribution"></div>
+  </div>
+
+  <div class="buttons-grid" id="buttonsGrid"></div>
+
+  <!-- Chelsea link — update the URL here if it ever changes -->
+  <footer>
+    <a href="https://hospitality.chelseafc.com/upcoming-events" target="_blank" rel="noopener">Chelsea fixtures</a>
+  </footer>
+
+  <script>
+    // ============================================================
+    // QUOTES
+    // Add your own as: ["Quote text.", "Author Name", "Their Title"]
+    // ============================================================
+    const QUOTES = [
+      ["Vision without execution is hallucination.",                          "Thomas Edison",      "Inventor"],
+      ["The way to get started is to quit talking and begin doing.",          "Walt Disney",        "Entertainment Pioneer"],
+      ["Well done is better than well said.",                                 "Benjamin Franklin",  "Founding Father"],
+      ["It always seems impossible until it is done.",                        "Nelson Mandela",     "Former South African President"],
+      ["Quality is not an act, it is a habit.",                               "Aristotle",          "Philosopher"],
+      ["Discipline is the bridge between goals and accomplishment.",          "Jim Rohn",           "Entrepreneur"],
+      ["The secret of getting ahead is getting started.",                     "Mark Twain",         "Author"],
+      ["Do what you can, with what you have, where you are.",                 "Theodore Roosevelt", "Former US President"],
+      ["Either you run the day or the day runs you.",                         "Jim Rohn",           "Entrepreneur"],
+      ["Knowing is not enough; we must apply.",                               "Leonardo da Vinci",  "Polymath"],
+      ["Energy and persistence conquer all things.",                          "Benjamin Franklin",  "Founding Father"],
+      ["Action is the foundational key to all success.",                      "Pablo Picasso",      "Artist"],
+    ];
+
+    // ============================================================
+    // LAUNCH BUTTONS
+    // Add, remove, or reorder entries here.
+    // Format: { label: "Name", icon: "emoji", url: "https://..." }
+    // ============================================================
+    const BUTTONS = [
+      { label: "Gmail",       icon: "✉️",  url: "https://mail.google.com" },
+      { label: "Weather",     icon: "🌤️", url: "https://www.theweathernetwork.com/en/city/ca/manitoba/winnipeg/current" },
+      { label: "Calendar",    icon: "📅",  url: "https://calendar.google.com" },
+      { label: "Google Docs", icon: "📄",  url: "https://docs.google.com" },
+    ];
+
+    // ============================================================
+    // GREETING + DATE
+    // ============================================================
+    const now  = new Date();
+    const hour = now.getHours();
+    const greetingText =
+      hour < 12 ? "Good morning" :
+      hour < 17 ? "Good afternoon" :
+                  "Good evening";
+
+    document.getElementById("greeting").textContent = greetingText;
+    document.getElementById("date").textContent = now.toLocaleDateString("en-CA", {
+      weekday: "long", year: "numeric", month: "long", day: "numeric"
+    });
+
+    // ============================================================
+    // DAILY QUOTE — same all day, rotates at midnight
+    // ============================================================
+    const yearStart = new Date(now.getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((now - yearStart) / 86400000);
+    const q         = QUOTES[dayOfYear % QUOTES.length];
+    document.getElementById("quoteText").textContent        = `"${q[0]}"`;
+    document.getElementById("quoteAttribution").textContent = `${q[1]}  (${q[2]})`;
+
+    // ============================================================
+    // LAUNCH BUTTONS — rendered from the array above
+    // ============================================================
+    const grid = document.getElementById("buttonsGrid");
+    BUTTONS.forEach(({ label, icon, url }) => {
+      const a = document.createElement("a");
+      a.className = "launch-btn";
+      a.href      = url;
+      a.target    = "_blank";
+      a.rel       = "noopener";
+      a.innerHTML = `<span class="btn-icon">${icon}</span>${label}`;
+      grid.appendChild(a);
+    });
+
+    // ============================================================
+    // PRIORITIES — localStorage
+    // ============================================================
+    const KEYS = {
+      texts: "dash_priority_texts",
+      done:  "dash_priority_done",
+      notes: "dash_notes",
+    };
+
+    // Default priorities — shown on first load or after "Start fresh"
+    const DEFAULT_PRIORITIES = [
+      "Finish Claude Code course",
+      "Check to see if there is any reply from Recruiter guests",
+      "Continue CPMAI training",
+    ];
+
+    function loadPriorities() {
+      const stored = JSON.parse(localStorage.getItem(KEYS.texts) || 'null');
+      const texts  = (!stored || stored.every(t => t === '')) ? DEFAULT_PRIORITIES.slice() : stored;
+      const done   = JSON.parse(localStorage.getItem(KEYS.done) || '[false,false,false]');
+      return { texts, done };
+    }
+
+    function savePriorities(texts, done) {
+      localStorage.setItem(KEYS.texts, JSON.stringify(texts));
+      localStorage.setItem(KEYS.done,  JSON.stringify(done));
+    }
+
+    function renderPriorities() {
+      const { texts, done } = loadPriorities();
+      const list = document.getElementById("priorityList");
+      list.innerHTML = "";
+
+      texts.forEach((text, i) => {
+        const row = document.createElement("div");
+        row.className = "priority-item";
+
+        const check = document.createElement("div");
+        check.className = "priority-check" + (done[i] ? " done" : "");
+        check.title = done[i] ? "Mark incomplete" : "Mark complete";
+        check.addEventListener("click", () => {
+          const { texts: t, done: d } = loadPriorities();
+          d[i] = !d[i];
+          savePriorities(t, d);
+          renderPriorities();
+        });
+
+        const input = document.createElement("textarea");
+        input.className   = "priority-text" + (done[i] ? " done" : "");
+        input.placeholder = `Priority ${i + 1}`;
+        input.value       = text;
+        input.rows        = 1;
+
+        function autoResize() {
+          input.style.height = "auto";
+          input.style.height = input.scrollHeight + "px";
+        }
+
+        input.addEventListener("input", () => {
+          const { texts: t, done: d } = loadPriorities();
+          t[i] = input.value;
+          savePriorities(t, d);
+          autoResize();
+        });
+
+        row.appendChild(check);
+        row.appendChild(input);
+        list.appendChild(row);
+        autoResize();
+      });
+    }
+
+    document.getElementById("startFresh").addEventListener("click", () => {
+      if (confirm("Clear all three priorities for a fresh start?")) {
+        savePriorities(["", "", ""], [false, false, false]);
+        renderPriorities();
+      }
+    });
+
+    renderPriorities();
+
+    // ============================================================
+    // NOTES — auto-save on every keystroke
+    // ============================================================
+    const notesEl = document.getElementById("notes");
+    notesEl.value = localStorage.getItem(KEYS.notes) || "";
+    notesEl.addEventListener("input", () => {
+      localStorage.setItem(KEYS.notes, notesEl.value);
+    });
+  </script>
+
+</body>
+</html>
